@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Progression Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --page:#16181c; --win:#1f2226; --panel:#262a2f; --panel2:#2c3036; --head:#33383f;
+  --line:#3b4048; --line2:#2f3339; --text:#d8dbe0; --muted:#8c939d; --dim:#626973;
+  --accent:#4f8fd9; --ph:#f0f2f5; --warn:#e3a33b; --ok:#5fb98e;
+  --c-fab:#a07fe0; --c-plot:#e08f55; --c-skill:#5fb98e; --c-loc:#4aa9d1; --c-upg:#d1b547; --c-prog:#e0708f;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --disp:"Unbounded","IBM Plex Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{background:var(--page);color:var(--text)}
+body{font:13px/1.45 var(--sans);padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.intro{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px}
+.intro h1{font:700 26px/1.1 var(--disp);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.intro p{margin:6px 0 0;color:var(--muted);max-width:62ch}
+.hint{font:11px/1.5 var(--mono);color:var(--dim);display:flex;flex-wrap:wrap;gap:4px 16px}
+.hint b{color:var(--muted);font-weight:500}
+
+/* ---------- Editor window ---------- */
+.editor{background:var(--win);border:1px solid #0d0e10;border-radius:6px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.tabs{display:flex;background:#191b1e;border-bottom:1px solid #0d0e10;font-size:12px}
+.tab{padding:6px 14px;color:var(--muted);border-right:1px solid #0d0e10}
+.tab.on{background:var(--win);color:var(--text);box-shadow:inset 0 2px 0 var(--accent)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 10px;background:var(--head);border-bottom:1px solid #15171a}
+.btn{font:500 12px var(--sans);color:var(--text);background:#3f454d;border:1px solid #1c1f23;border-radius:3px;padding:3px 9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#4a5059}
+.btn:focus-visible,.clip:focus-visible,.marker:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn.on{background:var(--accent);border-color:#2a5d99}
+.time{font:500 12px var(--mono);background:#1c1f23;border:1px solid #15171a;border-radius:3px;padding:3px 8px;font-variant-numeric:tabular-nums}
+.tb-label{color:var(--muted);font-size:11px}
+.sep{width:1px;height:18px;background:var(--line)}
+.grow{flex:1}
+input[type=range]{accent-color:var(--accent);width:110px}
+.badge{font:500 11px var(--sans);padding:3px 8px;border-radius:10px;cursor:pointer;border:0}
+.badge.warn{background:rgba(227,163,59,.18);color:var(--warn)}
+.badge.ok{background:rgba(95,185,142,.15);color:var(--ok);cursor:default}
+.asset{font:11px var(--mono);color:var(--muted)}
+.auto{display:inline-flex;align-items:center;gap:4px;cursor:pointer}.auto input{accent-color:var(--accent);margin:0}
+.badge.stale{background:rgba(140,147,157,.15);color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:min(560px,calc(100% - 32px));background:#2f343b;border:1px solid var(--line);border-left:3px solid var(--ok);border-radius:4px;padding:10px 14px;font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:50}
+.toast code{font:11.5px var(--mono);color:#9fb7d6}
+
+/* ---------- Slice ---------- */
+.slice{padding:12px;border-bottom:1px solid #15171a;background:linear-gradient(#23262b,#202328)}
+.slice-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin-bottom:10px}
+.slice-head .eyebrow{font:600 10px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.slice-head .facts{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:12px}
+.slice-head .facts b{color:var(--text);font-weight:500}
+.cards{display:grid;grid-template-columns:1.35fr 1fr 1fr;grid-template-rows:auto auto;gap:10px}
+.card{background:var(--panel);border:1px solid var(--line2);border-radius:4px;padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font:600 10px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.card h3 i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.card h3 span{margin-left:auto;font:500 10px var(--mono);letter-spacing:0;text-transform:none;color:var(--dim)}
+.card.act{grid-row:span 2;padding:0;overflow:hidden}
+.act-art{position:relative;aspect-ratio:16/8;max-width:100%;background:#111}
+.act-art svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.act-art .ov{position:absolute;left:12px;right:12px;bottom:10px}
+.act-art .num{font:600 10px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.act-art .ttl{font:700 20px/1.15 var(--disp);color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.5);text-wrap:balance}
+.act-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px}
+.act-body p{margin:0;color:#c3c7cd;max-width:60ch}
+.bar{height:6px;background:#1b1e22;border-radius:3px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--c,var(--accent));border-radius:3px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.kv b{color:var(--text);font:500 12px var(--mono);font-variant-numeric:tabular-nums}
+.lvl{display:flex;align-items:baseline;gap:10px}
+.lvl .n{font:700 34px/1 var(--disp);color:var(--c-prog)}
+.lvl .s{color:var(--muted);font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;padding:2px 7px;border-radius:3px;background:rgba(95,185,142,.16);color:#9fdcbd;border:1px solid rgba(95,185,142,.3)}
+.chip.off{background:transparent;color:var(--dim);border:1px dashed var(--line)}
+.map svg{width:100%;height:auto;display:block}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.list li{display:grid;grid-template-columns:22px 1fr auto;gap:6px;align-items:baseline;font-size:12px}
+.list .ix{font:500 10px var(--mono);color:var(--dim)}
+.list .t{min-width:0}
+.list .t small{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+.list .meta{font:10px var(--mono);color:var(--dim);white-space:nowrap}
+.list li.hid .t{color:var(--dim);letter-spacing:.2em}
+.list li.new .t{color:#fff}
+.list li.new .meta{color:var(--c-fab)}
+
+/* ---------- Timeline + inspector ---------- */
+.bottom{display:grid;grid-template-columns:minmax(0,1fr) 280px}
+.tl{display:grid;grid-template-columns:150px minmax(0,1fr);border-right:1px solid #15171a;min-width:0}
+.heads{background:var(--panel);border-right:1px solid #15171a}
+.hd{display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid var(--line2);font-size:12px}
+.hd i{width:4px;align-self:stretch;margin:6px 0;border-radius:2px;background:var(--c)}
+.hd div{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.hd small{color:var(--dim);font-size:10.5px}
+.hd.ruler-sp{height:26px;background:var(--head);color:var(--dim);font:10px var(--mono);border-bottom:1px solid #15171a}
+.scroll{overflow-x:auto;overflow-y:hidden;position:relative;background:#1d2024}
+.content{position:relative}
+.ruler{height:26px;background:var(--head);border-bottom:1px solid #15171a;position:relative;cursor:ew-resize;user-select:none}
+.tick{position:absolute;bottom:0;width:1px;background:#5a616b}
+.tick.maj{height:10px}.tick.min{height:5px;background:#474d56}
+.tick span{position:absolute;bottom:10px;left:4px;font:10px var(--mono);color:var(--muted);white-space:nowrap}
+.lane{position:relative;border-bottom:1px solid var(--line2);background-image:linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:var(--pph) 100%}
+.lane:nth-child(odd){background-color:rgba(255,255,255,.012)}
+.clip{position:absolute;top:5px;height:26px;border-radius:3px;background:color-mix(in srgb,var(--c) 30%,#24272c);border:1px solid color-mix(in srgb,var(--c) 55%,#000);border-left:3px solid var(--c);font-size:11px;padding:0 8px 0 6px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;cursor:grab;user-select:none;touch-action:none}
+.clip:active{cursor:grabbing}
+.clip .nm{overflow:hidden;text-overflow:ellipsis}
+.clip .tag{flex:none;font:10px var(--mono);color:color-mix(in srgb,var(--c) 70%,#fff);opacity:.9}
+.clip .rs{position:absolute;right:0;top:0;bottom:0;width:7px;cursor:ew-resize;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12))}
+.marker{position:absolute;top:0;height:36px;display:flex;align-items:center;gap:5px;cursor:grab;user-select:none;touch-action:none;font-size:11px;white-space:nowrap;padding-right:4px}
+.marker .d{width:11px;height:11px;transform:rotate(45deg);background:var(--c);border:1px solid rgba(0,0,0,.5);flex:none;margin-left:-5.5px}
+.marker .nm{color:#c9cdd3;background:rgba(29,32,36,.75);padding:0 3px;border-radius:2px}
+.sel.clip{box-shadow:0 0 0 1.5px #fff}
+.sel.marker .d{box-shadow:0 0 0 2px #fff}
+.sel.marker .nm{color:#fff}
+.warn.clip{border-color:var(--warn);background-image:repeating-linear-gradient(135deg,rgba(227,163,59,.14) 0 6px,transparent 6px 12px)}
+.warn.marker .nm{color:var(--warn)}
+.warn.marker .d{background:var(--warn)}
+.curve svg{position:absolute;inset:0;overflow:visible}
+.curve .key{cursor:grab;touch-action:none}
+.playhead{position:absolute;top:0;bottom:0;width:1px;background:var(--ph);pointer-events:none;z-index:5}
+.playhead::before{content:"";position:absolute;top:0;left:-6px;border:6px solid transparent;border-top:9px solid var(--ph)}
+.done{position:absolute;top:26px;bottom:0;left:0;background:rgba(79,143,217,.06);pointer-events:none;border-right:0}
+
+.insp{background:var(--panel);min-width:0}
+.insp-h{padding:6px 10px;background:var(--head);font-size:12px;border-bottom:1px solid #15171a;display:flex;justify-content:space-between}
+.insp-b{padding:10px;display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;font-size:12px}
+.row label{color:var(--muted)}
+.row input,.row select{width:100%;font:12px var(--sans);color:var(--text);background:#1c1f23;border:1px solid #15171a;border-radius:3px;padding:3px 6px}
+.row input:focus,.row select:focus{outline:1px solid var(--accent)}
+.path{font:10.5px var(--mono);color:#9fb7d6;background:#1c1f23;border:1px solid #15171a;border-radius:3px;padding:3px 6px;word-break:break-all}
+.ins-title{display:flex;align-items:center;gap:8px;font-weight:600}
+.ins-title i{width:10px;height:10px;border-radius:2px;background:var(--c)}
+.wmsg{font-size:11.5px;color:var(--warn);background:rgba(227,163,59,.08);border:1px solid rgba(227,163,59,.25);border-radius:3px;padding:6px 8px}
+.okmsg{font-size:11.5px;color:var(--muted)}
+.sub-h{font:600 10px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:4px}
+
+/* ---------- Plan ---------- */
+.plan{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px 40px}
+.plan h2{font:700 19px/1.2 var(--disp);margin:0 0 4px}
+.plan aside{color:var(--muted);font-size:12.5px}
+.plan aside p{margin:6px 0 0}
+.sec{display:flex;flex-direction:column;gap:12px;max-width:880px}
+.sec p{margin:0;max-width:72ch;color:#c5c9cf}
+.sec h4{margin:6px 0 0;font:600 14px var(--sans);color:var(--text)}
+.term{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.term div{background:var(--win);border:1px solid var(--line2);border-radius:4px;padding:10px 12px}
+.term b{display:block;margin-bottom:2px}
+.term span{color:var(--muted);font-size:12.5px}
+pre{margin:0;font:12px/1.55 var(--mono);color:#b9c3cf;background:#121417;border:1px solid var(--line2);border-radius:4px;padding:12px 14px;overflow-x:auto}
+pre .c{color:#6b7480}
+ul.pl{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;max-width:74ch;color:#c5c9cf}
+ul.pl code,.sec p code{font:12px var(--mono);color:#d7c38a}
+.phases{display:flex;flex-direction:column;border-left:1px solid var(--line);margin-left:6px}
+.ph{position:relative;padding:0 0 18px 20px}
+.ph::before{content:"";position:absolute;left:-5px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--win);border:2px solid var(--accent)}
+.ph .hdr{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.ph .hdr b{font-size:14px}
+.ph .hdr span{font:11px var(--mono);color:var(--accent)}
+.ph ul{margin:6px 0 0;padding-left:18px;color:#c5c9cf;display:flex;flex-direction:column;gap:3px;max-width:74ch}
+.ph .res{margin-top:6px;font-size:12px;color:var(--muted)}
+.risk{width:100%;border-collapse:collapse;font-size:12.5px}
+.risk th{text-align:left;color:var(--muted);font-weight:500;padding:6px 10px 6px 0;border-bottom:1px solid var(--line)}
+.risk td{padding:7px 10px 7px 0;border-bottom:1px solid var(--line2);vertical-align:top;color:#c5c9cf}
+.tblwrap{overflow-x:auto}
+
+@media (max-width:1000px){
+  .bottom{grid-template-columns:1fr}
+  .tl{border-right:0}
+  .insp{border-top:1px solid #15171a}
+  .cards{grid-template-columns:1fr 1fr}
+  .card.act{grid-column:span 2;grid-row:auto}
+  .plan{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+  .cards{grid-template-columns:1fr}
+  .card.act{grid-column:auto}
+  .tl{grid-template-columns:104px minmax(0,1fr)}
+  .hd small{display:none}
+  .asset{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head><body>
+
+<div class="wrap">
+  <header class="intro">
+    <div>
+      <h1>Progression Timeline</h1>
+      <p>Концепт окна редактора Unity: треки фабулы, сюжета, прокачки, локаций, апгрейдов и кривой прогресса на одной оси времени игры. Над таймлайном — срез игры в точке плейхеда. Ниже — план разработки пакета.</p>
+    </div>
+    <div class="hint"><span><b>Тянуть</b> клип или маркер</span><span><b>Край</b> клипа — длительность</span><span><b>Shift</b> — без привязки</span><span><b>Пробел</b> — проигрывание</span><span><b>← →</b> — шаг 15 мин</span></div>
+  </header>
+
+  <section class="editor" aria-label="Макет окна редактора">
+    <div class="tabs"><div class="tab on">Progression Timeline</div><div class="tab">Scene</div><div class="tab">Game</div></div>
+    <div class="toolbar">
+      <button class="btn" id="play" title="Пробел">▶ Play</button>
+      <span class="time" id="timeLbl">0:00 / 20:00</span>
+      <span class="tb-label">ч игры</span>
+      <div class="sep"></div>
+      <label class="tb-label" for="zoom">Zoom</label>
+      <input type="range" id="zoom" min="34" max="140" value="62">
+      <div class="sep"></div>
+      <span class="tb-label">Snap 15 мин</span>
+      <div class="grow"></div>
+      <button class="btn" id="pmBtn" title="Собрать состояние в момент t и запустить Play Mode">▶ Play Mode с <span id="pmT">0:00</span></button>
+      <button class="btn" id="saveBtn" title="Собрать ProgressionState в файл сейва">Создать сейв</button>
+      <div class="sep"></div>
+      <button class="btn" id="checkBtn" title="Проверить зависимости сейчас">Проверить</button>
+      <label class="tb-label auto"><input type="checkbox" id="autoChk" checked> авто</label>
+      <button class="badge" id="warnBadge"></button>
+      <span class="asset">MainCampaign.progression.asset</span>
+    </div>
+
+    <div class="slice">
+      <div class="slice-head">
+        <span class="eyebrow">Срез игры</span>
+        <div class="facts" id="facts"></div>
+      </div>
+      <div class="cards">
+        <div class="card act" id="cAct"></div>
+        <div class="card" id="cHero" style="--c:var(--c-prog)"></div>
+        <div class="card map" id="cMap" style="--c:var(--c-loc)"></div>
+        <div class="card" id="cFab" style="--c:var(--c-fab)"></div>
+        <div class="card" id="cUpg" style="--c:var(--c-upg)"></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="tl">
+        <div class="heads" id="heads"></div>
+        <div class="scroll" id="scroll"><div class="content" id="content"></div></div>
+      </div>
+      <aside class="insp"><div class="insp-h"><span>Inspector</span><span class="tb-label" id="inspKind"></span></div><div class="insp-b" id="insp"></div></aside>
+    </div>
+  </section>
+
+  <section class="plan">
+    <aside>
+      <h2>План разработки</h2>
+      <p>UPM-пакет для Unity 2022.3 LTS и Unity 6. Редактор на UI Toolkit, данные в ScriptableObject, срез собирается из подключаемых провайдеров.</p>
+    </aside>
+    <div class="sec">
+      <h4>Ключевые понятия</h4>
+      <div class="term">
+        <div><b>Фабула</b><span>События мира в хронологическом порядке. Клип стоит там, где игрок узнаёт событие; номер «хроно» показывает его место в истории мира. Срез показывает, какие куски истории игрок уже знает.</span></div>
+        <div><b>Сюжет</b><span>Порядок подачи: акты, главы, квесты. Акт может требовать локацию, уровень или раскрытый факт фабулы — это проверяет валидатор.</span></div>
+        <div><b>Срез игры</b><span>Состояние всех треков в момент t: акт, уровень, открытые зоны, снаряжение, знание истории. Каждая карточка — отдельный провайдер, проект добавляет свои.</span></div>
+      </div>
+
+      <h4>Архитектура</h4>
+      <pre><span class="c">// Runtime (без зависимостей от UnityEditor)</span>
+ProgressionTimeline : ScriptableObject   <span class="c">// ось времени, список треков</span>
+  TimeAxis { Units: Hours | Sessions | Quests, Length }
+  [SerializeReference] List&lt;TrackBase&gt; tracks
+TrackBase → ClipTrack | MarkerTrack | CurveTrack
+ClipBase { id, start, duration, Object binding, List&lt;Requirement&gt; }
+IProgressionQuery.Evaluate(t) → ProgressionState   <span class="c">// чистая функция: время → состояние</span>
+
+<span class="c">// Editor</span>
+ProgressionTimelineWindow : EditorWindow   <span class="c">// UI Toolkit: toolbar, slice, tracks, inspector</span>
+TrackDrawer&lt;T&gt;  [CustomTrackDrawer(typeof(LocationTrack))]
+ISlicePanel     [SlicePanel("Hero", order: 10)]  VisualElement Build(ProgressionState)
+IValidationRule Validate(timeline) → IEnumerable&lt;Issue&gt;</pre>
+      <ul class="pl">
+        <li><b>Своё окно, а не Unity Timeline.</b> Unity Timeline привязан к PlayableDirector и секундам сцены. Здесь ось — часы игры, сессии или номера квестов, а данные — дизайн-документ. Идеи взаимодействия (клипы, маркеры, кривые) повторяем.</li>
+        <li><b>Привязка к ресурсам проекта.</b> Каждый клип ссылается на реальный ассет: QuestSO, LocationSO, ItemSO, сцену, спрайт. Превью карточек берёт картинку и текст из этих ассетов через адаптеры <code>IPreviewSource</code>.</li>
+        <li><b>Undo и мультиредактирование.</b> Все изменения через <code>Undo.RecordObject</code>, выделение нескольких клипов, копирование между треками.</li>
+        <li><b>Валидатор.</b> Правила зависимостей: акт требует открытую локацию, навык — минимальный уровень, квест — раскрытый факт фабулы. Два режима: авто-проверка при каждом изменении или ручная по кнопке «Проверить» (для больших таймлайнов). В ручном режиме бейдж помечает результат как «не проверено». Ошибки видны на клипе, в тулбаре и в Console.</li>
+        <li><b>Сейв и Play Mode из точки t.</b> <code>ProgressionState</code> в момент t конвертируется в сейв игры через адаптер проекта <code>ISaveBuilder</code>. Кнопка «Создать сейв» пишет файл, «Play Mode с t» пишет временный сейв и загружает его при старте.</li>
+        <li><b>Обмен с таблицами.</b> Экспорт/импорт CSV и JSON, чтобы балансить прогрессию в Google Sheets и возвращать обратно.</li>
+      </ul>
+
+      <h4>Структура пакета</h4>
+      <pre>com.studio.progression-timeline/
+  package.json
+  Runtime/   Studio.Progression.asmdef       <span class="c">// модель данных, Evaluate(t), runtime API</span>
+  Editor/    Studio.Progression.Editor.asmdef <span class="c">// окно, треки, срез, инспектор, валидатор</span>
+    Resources/ UXML, USS, иконки
+  Tests/     Editor/, Runtime/                <span class="c">// Evaluate, валидатор, сериализация</span>
+  Samples~/  RPG Campaign, Metroidvania       <span class="c">// готовые треки и провайдеры среза</span>
+  Documentation~/</pre>
+      <p>Распространение: сначала через Git URL в Package Manager, затем приватный scoped registry или Asset Store.</p>
+
+      <h4>Этапы</h4>
+      <div class="phases">
+        <div class="ph"><div class="hdr"><b>0. Прототип окна</b><span>1–2 недели</span></div>
+          <ul><li>EditorWindow на UI Toolkit, один ассет таймлайна, линейка, плейхед, зум.</li><li>Треки клипов и маркеров с перетаскиванием и снэпом.</li><li>Одна карточка среза, собранная из захардкоженных данных.</li></ul>
+          <div class="res">Проверяем, удобно ли геймдизайнеру работать в таком виде.</div></div>
+        <div class="ph"><div class="hdr"><b>1. MVP</b><span>3–4 недели</span></div>
+          <ul><li>Шесть базовых треков: фабула, сюжет, прокачка, локации, апгрейды, кривая прогресса.</li><li>Inspector, Undo/Redo, мультивыделение, копирование, группы и сворачивание треков.</li><li>Срез из пяти карточек, пересчёт при движении плейхеда, проигрывание.</li></ul></div>
+        <div class="ph"><div class="hdr"><b>2. Интеграция с игрой</b><span>3–4 недели</span></div>
+          <ul><li>Биндинги клипов на ScriptableObject-ы проекта, превью спрайтов и описаний.</li><li>API провайдеров среза и отрисовщиков треков, атрибуты для автообнаружения.</li><li>Валидатор зависимостей: авто и ручной режим, окно ошибок, переход к клипу по клику.</li><li><code>ISaveBuilder</code>: создание сейва из точки t и запуск Play Mode с этим сейвом.</li></ul></div>
+        <div class="ph"><div class="hdr"><b>3. Сборка пакета</b><span>2 недели</span></div>
+          <ul><li>asmdef-разделение, namespace, тесты, два сэмпла, документация.</li><li>Проверка на 2022.3 LTS и Unity 6, светлая и тёмная тема редактора.</li></ul></div>
+        <div class="ph"><div class="hdr"><b>4. Расширения</b><span>по приоритету</span></div>
+          <ul><li>Сравнение двух срезов (A/B) и дельта между ними.</li><li>Пакетная генерация сейвов по контрольным точкам (начало каждого акта) для QA.</li><li>Наложение телеметрии: план против реального прохождения плейтестеров.</li><li>Импорт/экспорт CSV, версии ассета для сравнения итераций.</li></ul></div>
+      </div>
+
+      <h4>Риски</h4>
+      <div class="tblwrap"><table class="risk">
+        <tr><th>Риск</th><th>Что делаем</th></tr>
+        <tr><td>В каждом проекте своя модель квестов и прокачки</td><td>Ядро знает только клипы, маркеры и кривые; всё игровое — через адаптеры и провайдеры среза.</td></tr>
+        <tr><td>Производительность UI Toolkit на сотнях клипов</td><td>Виртуализация видимой области, перерисовка только изменённых треков.</td></tr>
+        <tr><td>Данные расходятся с реальными ассетами</td><td>Ссылки на ассеты вместо копий текста, валидатор битых ссылок.</td></tr>
+        <tr><td>Ось «часы игры» условна</td><td>Переключаемые единицы: часы, сессии, номер квеста; позже калибровка по телеметрии.</td></tr>
+      </table></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<script>
+(() => {
+const H = 20, SNAP = .25;
+const st = { t: 3.5, pph: 62, sel: null, playing: false, auto: true, W: {}, dirty: false };
+
+const TRACKS = [
+ { id:'fabula', name:'Фабула', sub:'события мира', c:'--c-fab', kind:'clip', items:[
+   {id:'f1',name:'Пробуждение',start:0,dur:1.25,chrono:4,text:'Герой приходит в себя в разрушенном храме.'},
+   {id:'f2',name:'Детство героя',start:2.5,dur:1.25,chrono:2,text:'Сирота, выросший при монастыре Ордена.'},
+   {id:'f3',name:'Падение Ордена',start:6.5,dur:1.5,chrono:1,text:'Двадцать лет назад Орден пал за одну ночь.'},
+   {id:'f4',name:'Предательство',start:11.75,dur:1.25,chrono:3,text:'Наставник сам открыл ворота врагу.'},
+   {id:'f5',name:'Истинный враг',start:16.75,dur:1.5,chrono:5,text:'За всем стоит тот, кто когда-то спас героя.'}]},
+ { id:'plot', name:'Сюжет', sub:'акты', c:'--c-plot', kind:'clip', items:[
+   {id:'a1',name:'Акт I · Пробуждение',start:0,dur:5,requires:'l1',hue:205,syn:'Герой без памяти выбирается из руин храма и находит приют в деревне у подножия гор.'},
+   {id:'a2',name:'Акт II · Дорога на север',start:5,dur:5.5,requires:'l3',hue:150,syn:'Через лес и старые шахты к северному перевалу — по следам уцелевших рыцарей Ордена.'},
+   {id:'a3',name:'Акт III · Осада',start:10.5,dur:5,requires:'l5',hue:12,syn:'Крепость в осаде. Герой узнаёт, кто открыл ворота, и теряет последнего союзника.'},
+   {id:'a4',name:'Акт IV · Цитадель',start:15.5,dur:4.5,requires:'l6',hue:275,syn:'Подъём в Цитадель и встреча с тем, кто всё это начал.'}]},
+ { id:'skill', name:'Прокачка', sub:'навыки', c:'--c-skill', kind:'marker', items:[
+   {id:'s1',name:'Двойной прыжок',start:1.5,minLevel:3},
+   {id:'s2',name:'Рывок',start:4,minLevel:6},
+   {id:'s3',name:'Парирование',start:7.5,minLevel:10},
+   {id:'s4',name:'Огненный клинок',start:10,minLevel:14},
+   {id:'s5',name:'Ярость',start:14,minLevel:20},
+   {id:'s6',name:'Последний довод',start:18,minLevel:26}]},
+ { id:'loc', name:'Локации', sub:'открытие', c:'--c-loc', kind:'marker', items:[
+   {id:'l1',name:'Деревня',start:0,x:42,y:150},
+   {id:'l2',name:'Лес',start:1.5,x:112,y:104},
+   {id:'l3',name:'Шахты',start:4,x:104,y:188},
+   {id:'l4',name:'Северный перевал',start:6.5,x:190,y:128},
+   {id:'l5',name:'Крепость',start:11,x:262,y:92},
+   {id:'l6',name:'Цитадель',start:15.5,x:318,y:38}]},
+ { id:'upg', name:'Апгрейды', sub:'снаряжение', c:'--c-upg', kind:'marker', items:[
+   {id:'u1',name:'Меч II',start:3,minLevel:5,bonus:4},
+   {id:'u2',name:'Броня II',start:5.5,minLevel:7,bonus:0,hp:40},
+   {id:'u3',name:'Конь',start:7,minLevel:9,bonus:0},
+   {id:'u4',name:'Меч III',start:9,minLevel:12,bonus:7},
+   {id:'u5',name:'Броня III',start:12.5,minLevel:17,bonus:0,hp:90},
+   {id:'u6',name:'Меч IV',start:16,minLevel:23,bonus:12}]},
+ { id:'prog', name:'Прогресс', sub:'уровень героя', c:'--c-prog', kind:'curve', keys:[
+   {t:0,v:1},{t:2,v:4},{t:5,v:8},{t:8,v:12},{t:11,v:16},{t:14,v:20},{t:17,v:25},{t:20,v:30}]}
+];
+const T = Object.fromEntries(TRACKS.map(t=>[t.id,t]));
+const ITEM = {}; TRACKS.forEach(tr => (tr.items||[]).forEach(it => { it.tr = tr; ITEM[it.id]=it; }));
+const LANE_H = {clip:36, marker:36, curve:86};
+const EDGES = [['l1','l2'],['l1','l3'],['l2','l4'],['l3','l4'],['l4','l5'],['l5','l6']];
+const VMAX = 30;
+
+const $ = id => document.getElementById(id);
+const fmt = t => { const h=Math.floor(t+1e-6), m=Math.round((t-h)*60); return h+':'+String(m===60?0:m).padStart(2,'0'); };
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const snap = (v,free) => free ? v : Math.round(v/SNAP)*SNAP;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function levelAt(t){
+  const k = T.prog.keys;
+  if (t<=k[0].t) return k[0].v;
+  for (let i=1;i<k.length;i++) if (t<=k[i].t){ const a=k[i-1], b=k[i]; return a.v+(b.v-a.v)*(t-a.t)/((b.t-a.t)||1); }
+  return k[k.length-1].v;
+}
+
+/* ---------- validation ---------- */
+function validate(){
+  const w = {};
+  const add = (id,msg) => (w[id] = w[id]||[]).push(msg);
+  T.plot.items.forEach(a => { const l = ITEM[a.requires];
+    if (l && l.start > a.start) add(a.id, `${a.name.split(' · ')[0]} начинается в ${fmt(a.start)}, а локация «${l.name}» открывается только в ${fmt(l.start)}.`); });
+  [...T.skill.items, ...T.upg.items].forEach(s => { const lv = Math.floor(levelAt(s.start));
+    if (lv < s.minLevel) add(s.id, `«${s.name}» требует ур. ${s.minLevel}, а в ${fmt(s.start)} у героя ур. ${lv}.`); });
+  return w;
+}
+
+/* ---------- timeline build ---------- */
+const els = {};
+function build(){
+  const heads=$('heads'), content=$('content');
+  heads.innerHTML = '<div class="hd ruler-sp">треки</div>';
+  content.innerHTML = '';
+  content.style.width = (H*st.pph + 40)+'px';
+  content.style.setProperty('--pph', st.pph+'px');
+
+  const ruler = document.createElement('div'); ruler.className='ruler'; ruler.id='ruler';
+  for (let q=0;q<=H*4;q++){ const t=q/4, maj=q%4===0;
+    if (!maj && st.pph<50) continue;
+    const k=document.createElement('div'); k.className='tick '+(maj?'maj':'min'); k.style.left=(t*st.pph)+'px';
+    if (maj) k.innerHTML=`<span>${t}ч</span>`; ruler.appendChild(k); }
+  content.appendChild(ruler);
+  ruler.addEventListener('pointerdown', e => {
+    ruler.setPointerCapture(e.pointerId);
+    const r = content.getBoundingClientRect();
+    const set = ev => { st.t = clamp(snap((ev.clientX-r.left)/st.pph, ev.shiftKey), 0, H); refresh(); };
+    set(e);
+    const up = () => { ruler.removeEventListener('pointermove', set); ruler.removeEventListener('pointerup', up); };
+    ruler.addEventListener('pointermove', set); ruler.addEventListener('pointerup', up);
+  });
+
+  const done = document.createElement('div'); done.className='done'; done.id='done'; content.appendChild(done);
+
+  TRACKS.forEach(tr => {
+    const h = LANE_H[tr.kind];
+    const hd = document.createElement('div'); hd.className='hd'; hd.style.height=h+'px'; hd.style.setProperty('--c',`var(${tr.c})`);
+    hd.innerHTML = `<i></i><div><span>${tr.name}</span><small>${tr.sub}</small></div>`;
+    heads.appendChild(hd);
+    const lane = document.createElement('div'); lane.className='lane'+(tr.kind==='curve'?' curve':''); lane.style.height=h+'px';
+    lane.style.setProperty('--c',`var(${tr.c})`);
+    content.appendChild(lane);
+    if (tr.kind==='curve') { buildCurve(lane, tr, h); return; }
+    tr.items.forEach(it => {
+      const el = document.createElement('div'); el.tabIndex=0; el.dataset.id=it.id;
+      if (tr.kind==='clip'){
+        el.className='clip';
+        const tag = tr.id==='fabula' ? `#${it.chrono}` : '';
+        el.innerHTML = `${tag?`<span class="tag" title="Место в хронологии мира">${tag}</span>`:''}<span class="nm">${esc(it.name)}</span><span class="rs"></span>`;
+        el.querySelector('.rs').addEventListener('pointerdown', e => { e.stopPropagation(); drag(e, it, 'resize', el); });
+      } else {
+        el.className='marker';
+        el.innerHTML = `<span class="d"></span><span class="nm">${esc(it.name)}${it.minLevel?` <span style="color:var(--dim)">ур.${it.minLevel}</span>`:''}</span>`;
+      }
+      el.addEventListener('pointerdown', e => drag(e, it, 'move', el));
+      el.addEventListener('focus', () => { if (st.sel!==it.id) select(it.id); });
+      lane.appendChild(el); els[it.id]=el; place(it);
+    });
+  });
+  const ph = document.createElement('div'); ph.className='playhead'; ph.id='ph'; content.appendChild(ph);
+  refresh();
+}
+
+function place(it){
+  const el = els[it.id]; if (!el) return;
+  el.style.left = (it.start*st.pph)+'px';
+  if (it.tr.kind==='clip') el.style.width = Math.max(it.dur*st.pph-2, 14)+'px';
+}
+
+function drag(e, it, mode, el){
+  if (e.button!==0) return;
+  e.preventDefault(); select(it.id); el.focus({preventScroll:true});
+  const tgt = e.currentTarget; tgt.setPointerCapture(e.pointerId);
+  const x0=e.clientX, s0=it.start, d0=it.dur;
+  const move = ev => {
+    const dt = (ev.clientX-x0)/st.pph;
+    if (mode==='move') it.start = clamp(snap(s0+dt, ev.shiftKey), 0, H-(it.dur||0));
+    else it.dur = clamp(snap(d0+dt, ev.shiftKey), .25, H-it.start);
+    place(it); refresh(false, true);
+  };
+  const up = () => { tgt.removeEventListener('pointermove',move); tgt.removeEventListener('pointerup',up); tgt.removeEventListener('pointercancel',up); };
+  tgt.addEventListener('pointermove',move); tgt.addEventListener('pointerup',up); tgt.addEventListener('pointercancel',up);
+}
+
+/* ---------- curve ---------- */
+let curve = null;
+function buildCurve(lane, tr, h){
+  const NS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(NS,'svg'); svg.setAttribute('width',H*st.pph); svg.setAttribute('height',h);
+  const pad=10, y = v => h-pad-(v-1)/(VMAX-1)*(h-pad*2), vOf = py => clamp(1+(h-pad-py)/(h-pad*2)*(VMAX-1),1,VMAX);
+  [10,20].forEach(v => { const g=document.createElementNS(NS,'line'); g.setAttribute('x1',0); g.setAttribute('x2',H*st.pph); g.setAttribute('y1',y(v)); g.setAttribute('y2',y(v)); g.setAttribute('stroke','rgba(255,255,255,.06)'); g.setAttribute('stroke-dasharray','3 4'); svg.appendChild(g);
+    const tx=document.createElementNS(NS,'text'); tx.setAttribute('x',4); tx.setAttribute('y',y(v)-3); tx.setAttribute('fill','#626973'); tx.setAttribute('font-size','9'); tx.setAttribute('font-family','IBM Plex Mono, monospace'); tx.textContent='ур.'+v; svg.appendChild(tx); });
+  const area=document.createElementNS(NS,'path'); area.setAttribute('fill','rgba(224,112,143,.12)'); svg.appendChild(area);
+  const line=document.createElementNS(NS,'polyline'); line.setAttribute('fill','none'); line.setAttribute('stroke','#e0708f'); line.setAttribute('stroke-width','1.6'); svg.appendChild(line);
+  const dots = tr.keys.map((k,i) => { const c=document.createElementNS(NS,'circle'); c.setAttribute('r',5); c.setAttribute('fill','#1d2024'); c.setAttribute('stroke','#e0708f'); c.setAttribute('stroke-width','2'); c.setAttribute('class','key');
+    c.addEventListener('pointerdown', e => {
+      e.preventDefault(); c.setPointerCapture(e.pointerId); select('prog');
+      const r = svg.getBoundingClientRect();
+      const mv = ev => { const k=tr.keys[i];
+        if (i>0 && i<tr.keys.length-1) k.t = clamp(snap((ev.clientX-r.left)/st.pph, ev.shiftKey), tr.keys[i-1].t+.25, tr.keys[i+1].t-.25);
+        k.v = Math.round(vOf(ev.clientY-r.top)*2)/2; drawCurve(); refresh(false, true); };
+      const up = () => { c.removeEventListener('pointermove',mv); c.removeEventListener('pointerup',up); };
+      c.addEventListener('pointermove',mv); c.addEventListener('pointerup',up);
+    });
+    svg.appendChild(c); return c; });
+  lane.appendChild(svg);
+  curve = {area,line,dots,y,h,tr};
+  drawCurve();
+}
+function drawCurve(){
+  const {area,line,dots,y,h,tr} = curve;
+  const pts = tr.keys.map(k => [k.t*st.pph, y(k.v)]);
+  line.setAttribute('points', pts.map(p=>p.join(',')).join(' '));
+  area.setAttribute('d', `M0,${h} `+pts.map(p=>'L'+p.join(',')).join(' ')+` L${H*st.pph},${h} Z`);
+  dots.forEach((d,i) => { d.setAttribute('cx',pts[i][0]); d.setAttribute('cy',pts[i][1]); });
+}
+
+/* ---------- selection & inspector ---------- */
+function select(id){
+  if (st.sel && els[st.sel]) els[st.sel].classList.remove('sel');
+  st.sel = id; if (els[id]) els[id].classList.add('sel');
+  renderInspector();
+}
+
+const ASSET = { fabula:'Narrative/Fabula', plot:'Narrative/Acts', skill:'Progression/Skills', loc:'World/Locations', upg:'Items/Upgrades' };
+function renderInspector(){
+  const box=$('insp'), W=st.W;
+  if (!st.sel){
+    $('inspKind').textContent='Timeline';
+    const all=Object.values(W).flat();
+    box.innerHTML = `<div class="ins-title">MainCampaign</div>
+      <div class="row"><label>Ось</label><span>Часы игры</span></div>
+      <div class="row"><label>Длина</label><span class="time" style="justify-self:start">20:00</span></div>
+      <div class="row"><label>Треков</label><span>${TRACKS.length}</span></div>
+      <div class="sub-h">Проверка</div>
+      ${all.length? all.map(m=>`<div class="wmsg">${esc(m)}</div>`).join('') : '<div class="okmsg">Нарушений зависимостей нет.</div>'}
+      <div class="okmsg">Выберите клип, маркер или ключ кривой.</div>`;
+    return;
+  }
+  if (st.sel==='prog'){
+    $('inspKind').textContent='Curve';
+    box.innerHTML = `<div class="ins-title" style="--c:var(--c-prog)"><i></i>Кривая уровня</div>
+      <div class="row"><label>Ключей</label><span>${T.prog.keys.length}</span></div>
+      <div class="row"><label>В ${fmt(st.t)}</label><span>ур. ${levelAt(st.t).toFixed(1)}</span></div>
+      <div class="sub-h">Источник</div><div class="path">Assets/Game/Progression/XpCurve.asset</div>
+      <div class="okmsg">Тяните ключи по вертикали — уровень, по горизонтали — время. Навыки и апгрейды перепроверяются сразу.</div>`;
+    return;
+  }
+  const it=ITEM[st.sel], tr=it.tr;
+  $('inspKind').textContent = tr.kind==='clip'?'Clip':'Marker';
+  let extra='';
+  if (tr.id==='fabula') extra=`<div class="row"><label for="i-chr">Хронология</label><input id="i-chr" type="number" min="1" max="9" value="${it.chrono}"></div>`;
+  if (tr.id==='plot') extra=`<div class="row"><label for="i-req">Требует</label><select id="i-req">${T.loc.items.map(l=>`<option value="${l.id}" ${l.id===it.requires?'selected':''}>${esc(l.name)}</option>`).join('')}</select></div>`;
+  if (it.minLevel!=null) extra=`<div class="row"><label for="i-lvl">Мин. уровень</label><input id="i-lvl" type="number" min="1" max="30" value="${it.minLevel}"></div>`;
+  const warns = W[it.id]||[];
+  box.innerHTML = `<div class="ins-title" style="--c:var(${tr.c})"><i></i>${esc(tr.name)}</div>
+    <div class="row"><label for="i-name">Название</label><input id="i-name" value="${esc(it.name)}"></div>
+    <div class="row"><label for="i-start">Начало, ч</label><input id="i-start" type="number" step="0.25" min="0" max="${H}" value="${it.start}"></div>
+    ${tr.kind==='clip'?`<div class="row"><label for="i-dur">Длит., ч</label><input id="i-dur" type="number" step="0.25" min="0.25" value="${it.dur}"></div>`:''}
+    ${extra}
+    <div class="sub-h">Привязка</div>
+    <div class="path">Assets/Game/${ASSET[tr.id]}/${it.id.toUpperCase()}_${esc(it.name.split(' · ').pop().replace(/\s+/g,''))}.asset</div>
+    <div class="sub-h">Проверка</div>
+    ${warns.length? warns.map(m=>`<div class="wmsg">${esc(m)}</div>`).join('') : '<div class="okmsg">Зависимости в порядке.</div>'}`;
+  const on=(id,fn)=>{ const e=$(id); if(e) e.addEventListener('change',()=>{ fn(e.value); place(it); refresh(true, true); renderInspector(); }); };
+  on('i-name', v => { it.name=v; els[it.id].querySelector('.nm').firstChild.textContent=v; });
+  on('i-start', v => { it.start=clamp(+v||0,0,H-(it.dur||0)); });
+  on('i-dur', v => { it.dur=clamp(+v||.25,.25,H-it.start); });
+  on('i-chr', v => { it.chrono=+v; els[it.id].querySelector('.tag').textContent='#'+v; });
+  on('i-req', v => { it.requires=v; });
+  on('i-lvl', v => { it.minLevel=+v; els[it.id].querySelector('.nm span').textContent='ур.'+v; });
+}
+
+/* ---------- slice ---------- */
+function rng(seed){ let s=seed; return ()=> (s=(s*16807)%2147483647)/2147483647; }
+const artCache={};
+function art(a){
+  if (artCache[a.id]) return artCache[a.id];
+  const h=a.hue, r=rng(h*97+13), W=400, Hh=200;
+  let layers='';
+  for (let L=0;L<4;L++){
+    let pts=`0,${Hh} `, x=0, base=90+L*26;
+    while (x<=W){ pts+=`${x},${(base - r()*(60-L*10)).toFixed(1)} `; x+=18+r()*34; }
+    pts+=`${W},${base-10} ${W},${Hh}`;
+    layers+=`<polygon points="${pts}" fill="hsl(${h},${28-L*4}%,${34-L*8}%)"/>`;
+  }
+  const sx=60+r()*280;
+  const svg=`<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="g${a.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${h},45%,18%)"/><stop offset="1" stop-color="hsl(${h+25},55%,58%)"/></linearGradient></defs>
+    <rect width="${W}" height="${Hh}" fill="url(#g${a.id})"/>
+    <circle cx="${sx}" cy="58" r="20" fill="hsl(${h+40},80%,86%)" opacity=".85"/>
+    ${layers}
+    <rect width="${W}" height="${Hh}" fill="url(#g${a.id})" opacity=".12"/></svg>`;
+  return artCache[a.id]=svg;
+}
+
+function renderSlice(){
+  const t=st.t, lv=levelAt(t), L=Math.floor(lv);
+  const acts=[...T.plot.items].sort((a,b)=>a.start-b.start);
+  const act = acts.filter(a=>a.start<=t+1e-6).pop() || acts[0];
+  const ai = acts.indexOf(act);
+  const inAct = clamp((t-act.start)/act.dur,0,1);
+  const locs=T.loc.items, open=locs.filter(l=>l.start<=t+1e-6);
+  const skills=[...T.skill.items].sort((a,b)=>a.start-b.start);
+  const upg=[...T.upg.items].sort((a,b)=>a.start-b.start);
+  const fab=[...T.fabula.items].sort((a,b)=>a.chrono-b.chrono);
+  const revealed=fab.filter(f=>f.start<=t+1e-6);
+  const order=[...T.fabula.items].sort((a,b)=>a.start-b.start).map(f=>f.id);
+
+  // next event
+  let next=null;
+  TRACKS.forEach(tr => (tr.items||[]).forEach(it => { if (it.start>t+1e-6 && (!next||it.start<next.start)) next=it; }));
+
+  $('facts').innerHTML = `<span><b>${fmt(t)}</b> из 20:00</span><span>${esc(act.name)}</span><span>Ур. <b>${L}</b></span>
+    <span>Локаций <b>${open.length}/${locs.length}</b></span><span>Фабула <b>${revealed.length}/${fab.length}</b></span>
+    ${next?`<span>Далее: ${esc(next.name)} через <b>${fmt(next.start-t)}</b></span>`:'<span>Финал</span>'}`;
+
+  // act card
+  const cA=$('cAct');
+  if (cA.dataset.act!==act.id){
+    cA.dataset.act=act.id;
+    cA.innerHTML = `<div class="act-art">${art(act)}<div class="ov"><div class="num">Акт ${ai+1} из ${acts.length}</div><div class="ttl">${esc(act.name.split(' · ').pop())}</div></div></div>
+      <div class="act-body"><p id="actSyn"></p>
+      <div class="kv"><span>Пройдено в акте</span><b id="actPct"></b></div><div class="bar" style="--c:var(--c-plot)"><i id="actBar"></i></div>
+      <div class="kv"><span>Регион акта</span><b id="actReg"></b></div></div>`;
+  }
+  $('actSyn').textContent=act.syn;
+  $('actPct').textContent=Math.round(inAct*100)+'%';
+  $('actBar').style.width=(inAct*100)+'%';
+  const req=ITEM[act.requires]; $('actReg').textContent = req.name + (req.start>t?' (закрыт)':'');
+  $('actReg').style.color = req.start>t ? 'var(--warn)' : '';
+
+  // hero
+  const bonus=upg.filter(u=>u.start<=t).reduce((s,u)=>s+(u.bonus||0),0);
+  const hpB=upg.filter(u=>u.start<=t).reduce((s,u)=>s+(u.hp||0),0);
+  const nextSkill=skills.find(s=>s.start>t);
+  $('cHero').innerHTML = `<h3><i></i>Герой<span>XpCurve</span></h3>
+    <div class="lvl"><span class="n">${L}</span><span class="s">уровень · ${Math.round((lv-L)*100)}% до ${Math.min(L+1,VMAX)}</span></div>
+    <div class="bar" style="--c:var(--c-prog)"><i style="width:${(lv-L)*100}%"></i></div>
+    <div class="kv"><span>Здоровье</span><b>${Math.round(80+L*12+hpB)}</b></div>
+    <div class="kv"><span>Урон</span><b>${Math.round(8+L*2.3+bonus)}</b></div>
+    <div class="chips">${skills.map(s=>`<span class="chip ${s.start<=t?'':'off'}" title="${fmt(s.start)}">${esc(s.name)}</span>`).join('')}</div>
+    ${nextSkill?`<div class="kv"><span>Следующий навык</span><b>${fmt(nextSkill.start-t)}</b></div>`:''}`;
+
+  // map
+  const cur = [...open].sort((a,b)=>b.start-a.start)[0];
+  const node = l => { const on=l.start<=t+1e-6, c=l===cur;
+    return `<g><circle cx="${l.x}" cy="${l.y}" r="${c?9:7}" fill="${on?'#4aa9d1':'#2a2e34'}" stroke="${c?'#fff':on?'#8fd0ea':'#4a5058'}" stroke-width="${c?2:1.5}"/>
+      ${on?'':`<path d="M${l.x-3},${l.y} v-2 a3,3 0 0 1 6,0 v2 M${l.x-4},${l.y} h8 v5 h-8 z" fill="none" stroke="#7a818b" stroke-width="1.2"/>`}
+      <text x="${l.x}" y="${l.y+(l.y<60?22:-13)}" text-anchor="middle" font-size="10.5" font-family="IBM Plex Sans, sans-serif" fill="${on?'#d8dbe0':'#626973'}">${esc(l.name)}</text></g>`; };
+  $('cMap').innerHTML = `<h3><i></i>Карта мира<span>${open.length}/${locs.length}</span></h3>
+    <svg viewBox="0 0 360 215" role="img" aria-label="Карта открытых локаций">
+      ${EDGES.map(([a,b])=>{const A=ITEM[a],B=ITEM[b],on=A.start<=t&&B.start<=t;return `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${on?'#4aa9d1':'#3b4048'}" stroke-width="${on?2:1.2}" stroke-dasharray="${on?'':'4 4'}"/>`;}).join('')}
+      ${locs.map(node).join('')}
+    </svg>`;
+
+  // fabula
+  const lastRev = [...revealed].sort((a,b)=>b.start-a.start)[0];
+  $('cFab').innerHTML = `<h3><i></i>Фабула: что знает игрок<span>${revealed.length}/${fab.length}</span></h3>
+    <ul class="list">${fab.map(f=>{ const on=f.start<=t+1e-6;
+      return `<li class="${on?(f===lastRev?'new':''):'hid'}"><span class="ix">${f.chrono}</span>
+        <span class="t">${on?esc(f.name)+`<small>${esc(f.text)}</small>`:'▒▒▒▒▒▒'}</span>
+        <span class="meta">${on?'подача '+(order.indexOf(f.id)+1):fmt(f.start)}</span></li>`; }).join('')}</ul>`;
+
+  // upgrades
+  $('cUpg').innerHTML = `<h3><i></i>Снаряжение<span>${upg.filter(u=>u.start<=t).length}/${upg.length}</span></h3>
+    <ul class="list">${upg.map(u=>{ const on=u.start<=t+1e-6;
+      return `<li class="${on?'':'hid'}" style="${on?'':'letter-spacing:0'}"><span class="ix">${on?'✓':'·'}</span>
+        <span class="t" style="letter-spacing:0;color:${on?'var(--text)':'var(--dim)'}">${esc(u.name)}</span>
+        <span class="meta">${on?'ур.'+u.minLevel:'через '+fmt(u.start-t)}</span></li>`; }).join('')}</ul>`;
+}
+
+/* ---------- refresh ---------- */
+function runCheck(){ st.W=validate(); st.dirty=false; }
+function refresh(skipInsp, changed){
+  if (st.auto) runCheck(); else if (changed) st.dirty=true;
+  const W=st.W, n=Object.values(W).flat().length;
+  Object.values(els).forEach(el => el.classList.toggle('warn', !!W[el.dataset.id]));
+  const b=$('warnBadge');
+  b.className='badge '+(st.dirty?'stale':n?'warn':'ok');
+  b.textContent = (n? `⚠ ${n} ${n===1?'нарушение':n<5?'нарушения':'нарушений'}` : '✓ Зависимости в порядке') + (st.dirty?' · не проверено':'');
+  $('pmT').textContent = fmt(st.t);
+  $('ph').style.left=(st.t*st.pph)+'px';
+  $('done').style.width=(st.t*st.pph)+'px';
+  $('timeLbl').textContent = `${fmt(st.t)} / 20:00`;
+  renderSlice();
+  if (!skipInsp && st.sel) renderInspector();
+  if (!st.sel) renderInspector();
+}
+
+$('warnBadge').addEventListener('click', () => { const W=st.W, id=Object.keys(W)[0]; if(!id) return;
+  select(id); const it=ITEM[id]; const sc=$('scroll'); sc.scrollLeft=Math.max(0,it.start*st.pph-120); });
+
+/* ---------- play / zoom / keys ---------- */
+let last=0;
+function tick(ts){ if(!st.playing) return; if(last){ st.t+= (ts-last)/1000*0.8; if(st.t>=H){st.t=H; togglePlay(false);} refresh(true);
+  const sc=$('scroll'), x=st.t*st.pph; if (x>sc.scrollLeft+sc.clientWidth-40) sc.scrollLeft=x-60; }
+  last=ts; requestAnimationFrame(tick); }
+function togglePlay(on){ st.playing = on??!st.playing; if(st.playing && st.t>=H) st.t=0; last=0;
+  $('play').textContent = st.playing?'❚❚ Pause':'▶ Play'; $('play').classList.toggle('on',st.playing);
+  if (st.playing) requestAnimationFrame(tick); else refresh(); }
+$('play').addEventListener('click', ()=>togglePlay());
+let toastT;
+function toast(html){ const el=$('toast'); el.innerHTML=html; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,4200); }
+function stateLine(){ const lv=Math.floor(levelAt(st.t)), locs=T.loc.items.filter(l=>l.start<=st.t).length;
+  const act=[...T.plot.items].sort((a,b)=>a.start-b.start).filter(a=>a.start<=st.t).pop();
+  return `${act.name.split(' · ')[0]}, ур. ${lv}, локаций ${locs}/6, фабула ${T.fabula.items.filter(f=>f.start<=st.t).length}/5`; }
+$('checkBtn').addEventListener('click', () => { runCheck(); refresh(); const n=Object.values(st.W).flat().length;
+  toast(n? `Проверка: найдено нарушений — <b>${n}</b>. Нажмите на бейдж, чтобы перейти к первому.` : 'Проверка: зависимости в порядке.'); });
+$('autoChk').addEventListener('change', e => { st.auto=e.target.checked; refresh(); });
+$('saveBtn').addEventListener('click', () => { const name=`MainCampaign_${fmt(st.t).replace(':','-')}.sav`;
+  toast(`Сейв создан: <code>Saves/Timeline/${name}</code><br>${stateLine()}`); });
+$('pmBtn').addEventListener('click', () => toast(`Play Mode: сейв на ${fmt(st.t)} собран и загружен при старте.<br>${stateLine()}`));
+$('zoom').addEventListener('input', e => { st.pph=+e.target.value; build(); if(st.sel) select(st.sel); });
+document.addEventListener('keydown', e => {
+  if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.code==='Space'){ e.preventDefault(); togglePlay(); }
+  if (e.key==='ArrowRight'||e.key==='ArrowLeft'){ e.preventDefault(); const d=e.key==='ArrowRight'?SNAP:-SNAP;
+    const it = st.sel && ITEM[st.sel];
+    if (it && e.altKey){ it.start=clamp(it.start+d,0,H-(it.dur||0)); place(it); refresh(false,true); }
+    else { st.t=clamp(st.t+d,0,H); refresh(); } }
+  if (e.key==='Escape') select(null);
+});
+$('content').addEventListener('pointerdown', e => { if (e.target.classList.contains('lane')) select(null); });
+
+build();
+})();
+</script>
+
+</body></html>

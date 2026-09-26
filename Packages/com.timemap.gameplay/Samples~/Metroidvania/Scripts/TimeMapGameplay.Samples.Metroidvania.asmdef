@@ -1,0 +1,14 @@
+{
+  "name": "TimeMapGameplay.Samples.Metroidvania",
+  "rootNamespace": "TimeMapGameplay.Samples.Metroidvania",
+  "references": ["TimeMapGameplay"],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

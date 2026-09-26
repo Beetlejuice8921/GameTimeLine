@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <uie:Toolbar name="toolbar" class="tmg-toolbar">
+        <uie:ToolbarButton name="play-button" text="Play" tooltip="Проигрывание (Space)" class="tmg-play" />
+        <ui:Label name="time-label" text="0:00 / 0:00" class="tmg-time" />
+        <uie:ToolbarSpacer />
+        <ui:Label text="Zoom" class="tmg-muted tmg-toolbar__label" />
+        <ui:Slider name="zoom-slider" low-value="12" high-value="400" value="62" class="tmg-zoom" />
+        <ui:Label name="snap-label" text="Snap" class="tmg-muted tmg-toolbar__label" tooltip="Shift при перетаскивании — без привязки" />
+        <ui:VisualElement class="tmg-grow" />
+        <uie:ToolbarButton name="playmode-button" text="Play Mode с t" tooltip="Собрать состояние в момент t в сейв и запустить Play Mode" />
+        <uie:ToolbarButton name="save-button" text="Создать сейв" />
+        <uie:ToolbarSpacer />
+        <uie:ToolbarToggle name="ab-toggle" text="A/B" tooltip="Сравнение двух срезов. Alt+клик по линейке — поставить B, клавиша B — B в позицию плейхеда." />
+        <uie:ToolbarMenu name="tools-menu" text="Ещё" />
+        <uie:ToolbarSpacer />
+        <uie:ToolbarButton name="check-button" text="Проверить" tooltip="Проверить зависимости сейчас (результат — в Inspector и Console)" />
+        <uie:ToolbarToggle name="auto-toggle" text="авто" tooltip="Авто-проверка после каждого изменения (хранится для вас в EditorPrefs)" />
+        <ui:Button name="issues-badge" text="не проверено" class="tmg-badge tmg-badge--stale" />
+        <uie:ObjectField name="asset-field" class="tmg-asset-field" />
+    </uie:Toolbar>
+
+    <ui:VisualElement name="empty-state" class="tmg-empty">
+        <ui:Label text="Progression Timeline" class="tmg-empty__title" />
+        <ui:Label text="Выберите ассет ProgressionTimeline в поле справа на тулбаре, откройте его двойным кликом или создайте демо-таймлайн." class="tmg-empty__text" />
+        <ui:Button name="create-demo-button" text="Создать демо-таймлайн" class="tmg-empty__button" />
+    </ui:VisualElement>
+
+    <ui:VisualElement name="main" class="tmg-main">
+        <ui:TwoPaneSplitView name="main-split" orientation="Vertical" fixed-pane-index="0" fixed-pane-initial-dimension="300" view-data-key="tmg-main-split">
+            <ui:ScrollView name="slice-host" class="tmg-slice" />
+            <ui:TwoPaneSplitView name="bottom-split" orientation="Horizontal" fixed-pane-index="1" fixed-pane-initial-dimension="300" view-data-key="tmg-bottom-split" class="tmg-bottom">
+                <ui:VisualElement name="timeline-host" class="tmg-timeline-host" />
+                <ui:VisualElement name="inspector-host" class="tmg-inspector" />
+            </ui:TwoPaneSplitView>
+        </ui:TwoPaneSplitView>
+    </ui:VisualElement>
+</ui:UXML>

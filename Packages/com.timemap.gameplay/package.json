@@ -1,0 +1,26 @@
+{
+  "name": "com.timemap.gameplay",
+  "version": "0.2.0",
+  "displayName": "TimeMapGameplay",
+  "description": "Progression timeline for game designers: fabula, plot, skills, locations, upgrades and level curve on one game-time axis, a game slice at any moment, dependency validation, and saves / Play Mode from any point in time.",
+  "unity": "6000.3",
+  "license": "MIT",
+  "author": {
+    "name": "Alexandr Rumyancev",
+    "email": "beetlejuice2@gmail.com"
+  },
+  "keywords": ["progression", "timeline", "game design", "narrative", "balance", "editor"],
+  "dependencies": {},
+  "samples": [
+    {
+      "displayName": "RPG Campaign",
+      "description": "20-hour campaign with quest assets, a custom save format with Play Mode bootstrap and a custom validation rule.",
+      "path": "Samples~/RPGCampaign"
+    },
+    {
+      "displayName": "Metroidvania",
+      "description": "Session-based castle with custom ability/boss tracks, an ability requirement, a track drawer and a slice card.",
+      "path": "Samples~/Metroidvania"
+    }
+  ]
+}

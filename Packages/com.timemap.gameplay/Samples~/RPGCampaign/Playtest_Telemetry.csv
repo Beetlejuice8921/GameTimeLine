@@ -1,0 +1,144 @@
+session,item,time
+playtest_01,Двойной прыжок,1.45
+playtest_01,Рывок,4.32
+playtest_01,Парирование,7.38
+playtest_01,Огненный клинок,10.17
+playtest_01,Ярость,14.41
+playtest_01,Последний довод,18.47
+playtest_01,Деревня,0.00
+playtest_01,Лес,1.27
+playtest_01,Шахты,4.11
+playtest_01,Северный перевал,6.38
+playtest_01,Крепость,11.00
+playtest_01,Цитадель,15.90
+playtest_01,Меч II,2.74
+playtest_01,Броня II,5.36
+playtest_01,Конь,7.26
+playtest_01,Меч III,8.83
+playtest_01,Акт II · Дорога на север,5.29
+playtest_01,Акт III · Осада,10.73
+playtest_01,Акт IV · Цитадель,15.49
+playtest_02,Двойной прыжок,1.82
+playtest_02,Рывок,4.31
+playtest_02,Парирование,8.23
+playtest_02,Огненный клинок,10.90
+playtest_02,Ярость,15.62
+playtest_02,Последний довод,20.12
+playtest_02,Деревня,0.00
+playtest_02,Лес,1.59
+playtest_02,Шахты,4.31
+playtest_02,Северный перевал,7.20
+playtest_02,Крепость,12.17
+playtest_02,Цитадель,17.31
+playtest_02,Меч II,3.52
+playtest_02,Броня II,6.04
+playtest_02,Конь,7.75
+playtest_02,Меч III,10.03
+playtest_02,Акт II · Дорога на север,5.28
+playtest_02,Акт III · Осада,11.32
+playtest_02,Акт IV · Цитадель,17.15
+playtest_03,Двойной прыжок,1.71
+playtest_03,Рывок,3.67
+playtest_03,Парирование,7.16
+playtest_03,Огненный клинок,9.62
+playtest_03,Ярость,13.79
+playtest_03,Последний довод,17.53
+playtest_03,Деревня,0.00
+playtest_03,Лес,1.41
+playtest_03,Шахты,3.83
+playtest_03,Северный перевал,6.48
+playtest_03,Крепость,10.92
+playtest_03,Цитадель,15.05
+playtest_03,Меч II,2.87
+playtest_03,Броня II,5.15
+playtest_03,Конь,7.10
+playtest_03,Меч III,8.71
+playtest_03,Акт II · Дорога на север,4.98
+playtest_03,Акт III · Осада,10.56
+playtest_03,Акт IV · Цитадель,15.57
+playtest_04,Двойной прыжок,1.63
+playtest_04,Рывок,3.79
+playtest_04,Парирование,6.80
+playtest_04,Огненный клинок,9.39
+playtest_04,Ярость,13.31
+playtest_04,Последний довод,16.80
+playtest_04,Деревня,0.00
+playtest_04,Лес,1.37
+playtest_04,Шахты,3.90
+playtest_04,Северный перевал,6.02
+playtest_04,Крепость,10.16
+playtest_04,Цитадель,14.57
+playtest_04,Меч II,2.89
+playtest_04,Броня II,5.34
+playtest_04,Конь,6.80
+playtest_04,Меч III,8.65
+playtest_04,Акт II · Дорога на север,4.41
+playtest_04,Акт III · Осада,10.05
+playtest_04,Акт IV · Цитадель,14.51
+playtest_05,Двойной прыжок,1.28
+playtest_05,Рывок,3.73
+playtest_05,Парирование,7.26
+playtest_05,Огненный клинок,9.94
+playtest_05,Ярость,13.68
+playtest_05,Последний довод,17.40
+playtest_05,Деревня,0.00
+playtest_05,Лес,1.44
+playtest_05,Шахты,3.83
+playtest_05,Северный перевал,6.65
+playtest_05,Крепость,10.91
+playtest_05,Цитадель,15.46
+playtest_05,Меч II,2.66
+playtest_05,Броня II,5.36
+playtest_05,Конь,6.72
+playtest_05,Меч III,8.91
+playtest_05,Акт II · Дорога на север,4.77
+playtest_05,Акт III · Осада,10.18
+playtest_05,Акт IV · Цитадель,15.17
+playtest_06,Двойной прыжок,1.91
+playtest_06,Рывок,4.30
+playtest_06,Парирование,8.04
+playtest_06,Огненный клинок,11.02
+playtest_06,Ярость,15.32
+playtest_06,Деревня,0.00
+playtest_06,Лес,1.37
+playtest_06,Шахты,4.39
+playtest_06,Северный перевал,6.89
+playtest_06,Крепость,11.87
+playtest_06,Меч II,3.22
+playtest_06,Броня II,6.01
+playtest_06,Конь,7.78
+playtest_06,Меч III,10.01
+playtest_06,Акт II · Дорога на север,5.48
+playtest_06,Акт III · Осада,11.53
+playtest_07,Двойной прыжок,1.91
+playtest_07,Рывок,5.40
+playtest_07,Парирование,9.47
+playtest_07,Огненный клинок,12.64
+playtest_07,Ярость,17.87
+playtest_07,Деревня,0.00
+playtest_07,Лес,1.72
+playtest_07,Шахты,5.05
+playtest_07,Северный перевал,8.24
+playtest_07,Крепость,14.12
+playtest_07,Меч II,3.58
+playtest_07,Броня II,7.18
+playtest_07,Конь,9.21
+playtest_07,Меч III,11.47
+playtest_07,Акт II · Дорога на север,6.64
+playtest_07,Акт III · Осада,13.78
+playtest_08,Двойной прыжок,1.41
+playtest_08,Рывок,3.92
+playtest_08,Парирование,7.80
+playtest_08,Огненный клинок,10.44
+playtest_08,Ярость,14.68
+playtest_08,Деревня,0.00
+playtest_08,Лес,1.43
+playtest_08,Шахты,4.24
+playtest_08,Северный перевал,6.83
+playtest_08,Крепость,11.50
+playtest_08,Меч II,2.93
+playtest_08,Броня II,6.07
+playtest_08,Конь,7.46
+playtest_08,Меч III,9.33
+playtest_08,Акт II · Дорога на север,5.02
+playtest_08,Акт III · Осада,11.22

@@ -1,0 +1,14 @@
+{
+  "name": "TimeMapGameplay.Samples.Metroidvania.Editor",
+  "rootNamespace": "TimeMapGameplay.Samples.Metroidvania.Editor",
+  "references": ["TimeMapGameplay", "TimeMapGameplay.Editor", "TimeMapGameplay.Samples.Metroidvania"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
