@@ -15,7 +15,7 @@
 Через Package Manager → *Add package from git URL*:
 
 ```
-<URL репозитория>.git?path=/Packages/com.timemap.gameplay
+https://github.com/Beetlejuice8921/GameTimeLine.git?path=/Packages/com.timemap.gameplay
 ```
 
 Или скопируйте папку `com.timemap.gameplay` в `Packages/` проекта.
