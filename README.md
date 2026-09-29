@@ -31,7 +31,7 @@ https://github.com/Beetlejuice8921/GameTimeLine.git?path=/Packages/com.timemap.g
 - [Руководство дизайнера](Packages/com.timemap.gameplay/Documentation~/index.md) — окно, мышь, клавиши, проверка, анализ
 - [Интеграция с проектом](Packages/com.timemap.gameplay/Documentation~/Integration.md) — сейвы, Play Mode с t, свои треки, правила, карточки
 - [Изменения](Packages/com.timemap.gameplay/CHANGELOG.md)
-- [Техническое задание](docs/SPEC.md) и [интерактивный концепт интерфейса](docs/concept/progression-timeline.html)
+- [Техническое задание](docs/SPEC.md) и [интерактивный концепт интерфейса](https://beetlejuice8921.github.io/GameTimeLine/docs/concept/progression-timeline.html) (открывается в браузере)
 
 ## Структура репозитория
 
